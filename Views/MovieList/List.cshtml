@@ -1,0 +1,54 @@
+@model MovieApi.Models.MovieItem
+
+<!DOCTYPE html>
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <br>
+    <br>
+    <h1 class="text-center">MOVIES</h1>
+    <br>
+    <link href="~/css/site.css" rel="stylesheet">
+</head>
+<html>
+<body>
+<div class="container">
+  <div class="row">
+    <div class="col-8 mx-auto">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th scope="col" >Image</th>
+            <th scope="col">Movie Name</th>
+            <th scope="col">Year</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+            @{
+                foreach(var x in @ViewData["movies"] as List<MovieApi.Models.MovieItem>)
+                {
+                    <tr>
+                        <td><img src="data:image/jpg;base64, @x.getPoster()" width="110" height="130" class="center"></td>  
+                        <td class="text-center">@x.name</td>
+                        <td class="text-center">@x.year</td>
+                        <td class="text-center">
+                            <a href="@Url.Action("CreateAndUpdate","MovieList", new{id=x.id})"><button type="button" class="btn btn-success"><i class="far fa-edit">Edit</button></a>  
+                            <a href="@Url.Action("Delete","MovieList", new{id=x.id})" onclick="return confirm('Do you want to delete this movie?');"><button type="button" class="btn btn-danger"><i class="far fa-trash-alt">Delete</button></a>  
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+      </table>
+        <a href="@Url.Action("CreateAndUpdate","MovieList", new{id= -1})"><button type="button" class="btn btn-primary" style="float: right;"><i class="far fa-trash-alt">Add a Movie</button></a>  
+    </div>
+  </div>
+</div>
+
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+</body>
+</html>
+
+
