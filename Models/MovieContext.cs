@@ -1,11 +1,8 @@
 using MySql.Data.MySqlClient;
-using System;
-using System.Web;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
 namespace MovieApi.Models
@@ -14,10 +11,15 @@ namespace MovieApi.Models
   {
     public string ConnectionString { get; set; }
     private readonly ILogger _logger;
-    public MovieContext(string connectionString,ILogger<MovieContext> logger)
+    private readonly IHubContext<Hubs.MovieHub> _hubContext;
+    private readonly Hubs.MovieHub _movieHub;
+    public MovieContext(string connectionString,ILogger<MovieContext> logger, IHubContext<Hubs.MovieHub> hubContext)
     {
       this.ConnectionString = connectionString;
       _logger = logger;
+      _hubContext = hubContext;
+      _movieHub = new Hubs.MovieHub();
+
     }
     private MySqlConnection GetConnection()
     {
@@ -156,6 +158,7 @@ namespace MovieApi.Models
         cmd.ExecuteNonQuery();
         conn.Close();
         _logger.LogInformation("Post item is successful.");
+        _movieHub.SendData(_hubContext);
         return item;
       }
     }
@@ -202,6 +205,7 @@ namespace MovieApi.Models
           cmd.ExecuteNonQuery();
           conn.Close();
           _logger.LogInformation("Put item is successful.");
+          _movieHub.SendData(_hubContext);
           return movieItem;
       }
     }
@@ -221,6 +225,7 @@ namespace MovieApi.Models
         cmd.Prepare();       
         cmd.ExecuteNonQuery();
         _logger.LogInformation("Delete item is successful");
+        _movieHub.SendData(_hubContext);
         conn.Close();
       }
     }

@@ -1,11 +1,9 @@
-using System.Web;
-using System;
 using Microsoft.AspNetCore.Mvc;
 using MovieApi.Models;
 using System.IO;
 using System.Threading.Tasks;
 using System.Threading;
-using System.Collections.Generic;
+using Microsoft.AspNetCore.SignalR;
 
 namespace MovieApi.Controllers
 {
@@ -13,8 +11,7 @@ namespace MovieApi.Controllers
     public class MovieListController : Controller
     {
         private readonly MovieContext _context;
-
-        public MovieListController(MovieContext context)
+        public MovieListController(MovieContext context, IHubContext<Hubs.MovieHub> hubContext)
         {
             _context = context;
         }
@@ -46,6 +43,7 @@ namespace MovieApi.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task <IActionResult> CreateAndUpdate(CancellationToken cancellationToken ,MovieItem item)
         {
             

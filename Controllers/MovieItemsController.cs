@@ -1,19 +1,18 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MovieApi.Models;
 using System.Threading;
-using MySql.Data.MySqlClient;
-using System.Web;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Cors;
+
 
 namespace MovieApi.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
+    [EnableCors("CorsPolicy")]
+
     public class MovieItemsController : Controller 
     {
         private readonly MovieContext _context;

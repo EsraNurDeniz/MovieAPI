@@ -1,15 +1,12 @@
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MovieApi.Models;
-using System.Data;
-using MySql.Data;
-using MySql.Data.MySqlClient;
+using Microsoft.AspNetCore.SignalR;
 
 namespace MovieApi
 {
@@ -25,38 +22,43 @@ namespace MovieApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
+            {
+                builder
+                       .AllowAnyMethod()
+                       .SetIsOriginAllowed(_ => true)
+                       .AllowAnyHeader()
+                       .AllowCredentials();
+            }));
+            services.AddMvc();
             services.AddControllers();
             services.AddControllers().AddXmlSerializerFormatters();
-            services.AddMvc();
             services.AddSingleton<MovieContext>((container) =>
             {
                 var logger = container.GetRequiredService<ILogger<MovieContext>>();
-                return new MovieContext(Configuration.GetConnectionString("DefaultConnection"),logger);
+                var hubContext = container.GetRequiredService<IHubContext<Hubs.MovieHub>>();
+                return new MovieContext(Configuration.GetConnectionString("DefaultConnection"),logger,hubContext);
             });
-
+            services.AddSignalR();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
-            loggerFactory.AddProvider(new Models.fileLogProvider());
 
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            app.UseHttpsRedirection();
-
-            app.UseRouting();
-
             app.UseAuthorization();
-
+            app.UseRouting();
+            app.UseCors("CorsPolicy");
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<Hubs.MovieHub>("/movieHub");
             });
-
+            loggerFactory.AddProvider(new Models.fileLogProvider());
  
         }
     }
